@@ -2,6 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:notes_app/controllers/authentication/provider_auth.dart';
 import 'package:notes_app/controllers/firestore/database.dart';
 import 'package:notes_app/models/user.dart';
@@ -226,17 +227,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         onPressed: () async {
-                          var response = await authProvider.signUp(
-                              email, password, _formKey, context);
-                          if (response != null) {
-                            await authProvider.signUp(
-                                email, password, _formKey, context);
-                            Navigator.of(context).pushReplacementNamed(
-                              LoginScreen.id,
-                            );
+                          var formData = _formKey.currentState;
+                          if (formData.validate()) {
+                            formData.save();
+                            UserCredential response =
+                                await authProvider.signUp(email, password);
+                            if (response != null) {
+                              Navigator.of(context)
+                                  .pushReplacementNamed(HomeScreen.id);
+                            } else {
+                              AwesomeDialog(
+                                context: context,
+                                title: "Error",
+                                body: Text(
+                                  authProvider.errorMessage.toString(),
+                                ),
+                              )..show();
+                            }
+                            await storeData(context, authProvider);
                           }
-
-                          // await storeData(context, authProvider);
                         },
                         child: Text(
                           "Register",

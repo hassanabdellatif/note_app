@@ -23,69 +23,44 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  signIn(String email, String password, final formKey,
-      BuildContext context) async {
-    var formData = formKey.currentState;
-    if (formData.validate()) {
-      formData.save();
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        notifyListeners();
-        return userCredential;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          // Navigator.of(context).pop();
-          AwesomeDialog(
-            context: context,
-            title: "Error",
-            body: Text("No user found for that email"),
-          )..show();
-        } else if (e.code == 'wrong-password') {
-          // Navigator.of(context).pop();
-          AwesomeDialog(
-            context: context,
-            title: "Error",
-            body: Text("Wrong password provided for that user"),
-          )..show();
-        }
-        notifyListeners();
+  signIn(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      notifyListeners();
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        errorMessage = "Your email is invalid";
+        print('Invalid email');
       }
-    } else {
-      print("Not Valid");
+      if (e.code == 'user-not-found') {
+        errorMessage = "User not found";
+        print('Hi, User not found');
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Your password is not correct";
+      }
+      notifyListeners();
+    } catch (e) {
+      print(e.code);
     }
   }
 
-  signUp(String email, String password, final formKey,
-      BuildContext context) async {
-    var formData = formKey.currentState;
-    if (formData.validate()) {
-      formData.save();
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-        notifyListeners();
-        return userCredential;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          // Navigator.of(context).pop();
-          AwesomeDialog(
-            context: context,
-            title: "Error",
-            body: Text("Password is to weak"),
-          )..show();
-        } else if (e.code == 'email-already-in-use') {
-          // Navigator.of(context).pop();
-          AwesomeDialog(
-            context: context,
-            title: "Error",
-            body: Text("The account already exists for that email"),
-          )..show();
-        }
-      } catch (e) {
-        print(e);
+  signUp(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      notifyListeners();
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        errorMessage = "Your email is invalid";
+        print('Invalid email');
       }
-    } else {}
+      notifyListeners();
+    } catch (e) {
+      print(e.code);
+    }
   }
 
   currentUser() {

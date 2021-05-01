@@ -176,17 +176,17 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           child: ElevatedButton(
             style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(
-              Color(0xff7B2CBF),
-            ),
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8),
+              backgroundColor: MaterialStateProperty.all(
+                Color(0xff7B2CBF),
+              ),
+              shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
                 ),
               ),
             ),
-          ),
             child: Text(
               "SIGN IN",
               style: TextStyle(
@@ -194,10 +194,21 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             onPressed: () async {
-              var user =
-                  await authProvider.signIn(email, password, _formKey, context);
-              if (user != null) {
-                Navigator.of(context).pushReplacementNamed(HomeScreen.id);
+              var formData = _formKey.currentState;
+              if (formData.validate()) {
+                formData.save();
+                var user = await authProvider.signIn(email, password);
+                if (user != null) {
+                  Navigator.of(context).pushReplacementNamed(HomeScreen.id);
+                }
+              } else {
+                AwesomeDialog(
+                  context: context,
+                  title: "Error",
+                  body: Text(
+                    authProvider.errorMessage.toString(),
+                  ),
+                )..show();
               }
             },
           ),
