@@ -234,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 await authProvider.signUp(email, password);
                             if (response != null) {
                               Navigator.of(context)
-                                  .pushReplacementNamed(HomeScreen.id);
+                                  .pushReplacementNamed(LoginScreen.id);
                             } else {
                               AwesomeDialog(
                                 context: context,
